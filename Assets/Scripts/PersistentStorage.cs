@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+
+// script saves and loads data of a single persistabe object 
 public class PersistentStorage : MonoBehaviour
 {
     string savePath;

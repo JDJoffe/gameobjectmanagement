@@ -22,6 +22,7 @@ public class GameManager : PersistableObject
     }
     private void Update()
     {
+        #region inputs
         if (Input.GetKeyDown(createKey))
         {
             // call function
@@ -43,6 +44,7 @@ public class GameManager : PersistableObject
             NewGame();
             storage.Load(this);
         }
+        #endregion
     }
     #region creating and clearing objects in list
     private void CreateObject()
@@ -89,6 +91,7 @@ public class GameManager : PersistableObject
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(Vector3.zero, 5f);
     }
+    #region saving & loading
     public override void Save(GameDataWriter writer)
     {
         writer.Write(cubes.Count);
@@ -107,5 +110,6 @@ public class GameManager : PersistableObject
             cubes.Add(o);
         }
     }
+    #endregion
 }
 
