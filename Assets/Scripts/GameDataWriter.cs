@@ -34,6 +34,13 @@ public class GameDataWriter
         writer.Write(value.y);
         writer.Write(value.z);
     }
+    public void Write(Color value)
+    {
+        writer.Write(value.r);
+        writer.Write(value.g);
+        writer.Write(value.b);
+        writer.Write(value.a);
+    }
     #endregion  
 }
 
@@ -72,6 +79,15 @@ public class GameDataReader
         value.x = reader.ReadSingle();
         value.y = reader.ReadSingle();
         value.z = reader.ReadSingle();
+        return value;
+    }
+    public Color ReadColor()
+    {
+        Color value;
+        value.r = reader.ReadSingle();
+        value.g = reader.ReadSingle();
+        value.b = reader.ReadSingle();
+        value.a = reader.ReadSingle();
         return value;
     }
     #endregion

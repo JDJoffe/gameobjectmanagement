@@ -114,20 +114,32 @@ public class GameManager : PersistableObject
         // save each cube
         writer.Write(-saveVersion);
         writer.Write(shapes.Count);
-        foreach (var cube in shapes)
+
+        for (int i = 0; i < shapes.Count; i++)
         {
-            cube.Save(writer);
+            writer.Write(shapes[i].ShapeId);
+            writer.Write(shapes[i].MaterialId);
+            shapes[i].Save(writer);
         }
     }
     public override void Load(GameDataReader reader)
     {
         // load each cube
-        int version = reader.ReadInt();
+        int version = -reader.ReadInt();
+        if (version > saveVersion)
+        {
+            Debug.LogError("Unsupported future save version " + version);
+            return;
+        }
         int count = version <= 0 ? -version : reader.ReadInt();
         for (int i = 0; i < count; i++)
         {
+            // get id
+            int shapeId = version > 0 ? reader.ReadInt():0;
+            // get material
+            int materialId = version > 0 ? reader.ReadInt() : 0;
             // instantiate shapes again
-            Shape o = shapeFactory.Get(0);
+            Shape o = shapeFactory.Get(shapeId,materialId);
             o.Load(reader);
             shapes.Add(o);
            // shapes.Add(o.transform);

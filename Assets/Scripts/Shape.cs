@@ -14,15 +14,27 @@ public class Shape : PersistableObject
         }
     }
     int shapeId = int.MinValue;
-    // Start is called before the first frame update
-    void Start()
+    public int MaterialId { get; private set; }
+    Color color;
+   public void SetColor(Color color)
     {
-
+        this.color = color;
+        GetComponent<MeshRenderer>().material.color = color;
+    }
+    public void SetMaterial( Material material, int materialId)
+    {
+        GetComponent<MeshRenderer>().material = material;
+        MaterialId = materialId;
+    }
+    public override void Save(GameDataWriter writer)
+    {
+        base.Save(writer);
+        writer.Write(color);
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void Load(GameDataReader reader)
     {
-
+        base.Load(reader);
+        SetColor(reader.ReadColor());
     }
 }
