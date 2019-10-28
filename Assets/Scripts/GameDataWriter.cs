@@ -19,6 +19,7 @@ public class GameDataWriter
     {
         writer.Write(value);
     }
+    // write rotation
     public void Write(Quaternion value)
     {
         writer.Write(value.x);
@@ -26,6 +27,7 @@ public class GameDataWriter
         writer.Write(value.z);
         writer.Write(value.w);
     }
+    // write v3 (used for position and size)
     public void Write(Vector3 value)
     {
         writer.Write(value.x);
@@ -52,6 +54,7 @@ public class GameDataReader
     {
         return reader.ReadInt32();
     }
+    // read rotation
     public Quaternion ReadQuarternion()
     {
         Quaternion value;
@@ -62,6 +65,7 @@ public class GameDataReader
 
         return value;
     }
+    // read v3
     public Vector3 ReadVector3()
     {
         Vector3 value;

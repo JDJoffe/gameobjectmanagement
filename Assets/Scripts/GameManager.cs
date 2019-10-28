@@ -6,10 +6,12 @@ using UnityEngine;
 public class GameManager : PersistableObject
 {
     // just the position 
-    public PersistableObject prefab;
+    public ShapeFactory shapeFactory;
     public Transform prefabParent;
-    public List<PersistableObject> cubes;
+    public List<Shape> shapes;
+   //public List<Transform> cubepos;
     public PersistentStorage storage;
+    const int saveVersion = 1;
     private string savePath;
     // keycode variable, could maybe use this for changeable controls
     public KeyCode createKey = KeyCode.C;
@@ -18,7 +20,8 @@ public class GameManager : PersistableObject
     public KeyCode loadKey = KeyCode.L;
     private void Awake()
     {
-        cubes = new List<PersistableObject>();
+        shapes = new List<Shape>();
+       // cubepos = new List<Transform>();
     }
     private void Update()
     {
@@ -49,9 +52,9 @@ public class GameManager : PersistableObject
     #region creating and clearing objects in list
     private void CreateObject()
     {
-       // Vector3 prevpos;
-        PersistableObject o = Instantiate(prefab, prefabParent);
-        // random.insideunitsphere makes the cubes spawn randomly within the sphere, 
+      // o is an instance (instantiated object)
+        Shape o = shapeFactory.GetRandom();
+        // random.insideunitsphere makes the shapes spawn randomly within the sphere, 
         // they may jut out but their centrepoint is never outside the sphere
         #region diagram
         //              +5
@@ -61,29 +64,43 @@ public class GameManager : PersistableObject
         //              |
         //              |
         //              -5
-        #endregion     
-       // foreach (var cube in cubes)
-      //  {
-         //   if (true)
-         //   {
-                o.transform.localPosition = Random.insideUnitSphere * 5f;
-                o.transform.localRotation = Random.rotation;
-                o.transform.localScale = Random.Range(01, 1) * Vector3.one;
-                cubes.Add(o);
+        #endregion
+        Transform t = o.transform;
+       t.localPosition = Random.insideUnitSphere * 5f;
+        t.transform.localRotation = Random.rotation;
+        t.transform.localScale = Random.Range(0.1f, 1f) * Vector3.one;
+        shapes.Add(o);
+        //cubepos.Add(o.transform);
+        //for (int i = 0; i < 20; i++)
+        //{
+        //    bool overlapping = false;
+        //    foreach (var cubeposition in cubepos)
+        //    {
+        //        if (Vector3.Distance(o.transform.position, cubeposition.transform.position) < 5f)
+        //        {
+        //            overlapping = true;
+        //            break;
+        //        }
         //    }
-         //  prevpos = cube.transform.position;
-       // }
-       
+        //    if (overlapping) {
+        //        Debug.Log("new pos for this boy");
+        //        o.transform.localPosition = Random.insideUnitSphere * 5f;             
+        //    } else {
+        //        break;
+        //    }
+        //}
+
     }
     private void NewGame()
     {
         // var is a transform
-        foreach (var cube in cubes)
+        foreach (var cube in shapes)
         {
             // destroy selected gameobject cube transform is connected to
             Destroy(cube.gameObject);
         }
-        cubes.Clear();
+        shapes.Clear();
+        //cubepos.Clear();
     }
     #endregion
     private void OnDrawGizmos()
@@ -94,20 +111,26 @@ public class GameManager : PersistableObject
     #region saving & loading
     public override void Save(GameDataWriter writer)
     {
-        writer.Write(cubes.Count);
-        foreach (var cube in cubes)
+        // save each cube
+        writer.Write(-saveVersion);
+        writer.Write(shapes.Count);
+        foreach (var cube in shapes)
         {
             cube.Save(writer);
         }
     }
     public override void Load(GameDataReader reader)
     {
-        int count = reader.ReadInt();
+        // load each cube
+        int version = reader.ReadInt();
+        int count = version <= 0 ? -version : reader.ReadInt();
         for (int i = 0; i < count; i++)
         {
-            PersistableObject o = Instantiate(prefab,prefabParent);
+            // instantiate shapes again
+            Shape o = shapeFactory.Get(0);
             o.Load(reader);
-            cubes.Add(o);
+            shapes.Add(o);
+           // shapes.Add(o.transform);
         }
     }
     #endregion
