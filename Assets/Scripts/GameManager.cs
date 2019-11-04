@@ -14,9 +14,14 @@ public class GameManager : PersistableObject
     private string savePath;
     // keycode variable, could maybe use this for changeable controls
     public KeyCode createKey = KeyCode.C;
+    public KeyCode destroyKey = KeyCode.X;
     public KeyCode newGameKey = KeyCode.N;
     public KeyCode saveKey = KeyCode.S;
     public KeyCode loadKey = KeyCode.L;
+    // speeds
+    public float CreationSpeed { get; set; }
+    public float DestructionSpeed { get; set; }
+    float creationProgress,destructionProgress;
 
     private void Awake()
     {
@@ -26,11 +31,28 @@ public class GameManager : PersistableObject
     }
     private void Update()
     {
+        creationProgress += Time.deltaTime * CreationSpeed;
+        while (creationProgress >= 1f)
+        {
+            creationProgress -= 1f;
+            CreateObject();
+        }
+        destructionProgress += Time.deltaTime * DestructionSpeed;
+        while (destructionProgress >= 1f)
+        {
+            destructionProgress -= 1f;
+            DestroyShape();
+        }
         #region inputs
         if (Input.GetKeyDown(createKey))
         {
             // call function
             CreateObject();
+        }
+        if (Input.GetKeyDown(destroyKey))
+        {
+            // call function
+            DestroyShape();
         }
         else if (Input.GetKeyDown(newGameKey))
         {
@@ -38,8 +60,7 @@ public class GameManager : PersistableObject
             NewGame();
         }
         else if (Input.GetKeyDown(saveKey))
-        {
-           
+        {         
             // call function from storage
             storage.Save(this,saveVersion);
         }
@@ -105,6 +126,16 @@ public class GameManager : PersistableObject
         }
         shapes.Clear();
         //cubepos.Clear();
+    }
+    void DestroyShape()
+    {
+        // remove random shape
+        int index = Random.Range(0, shapes.Count);
+        Destroy(shapes[index].gameObject);
+        // swap deleted element's slot with the last element to leave the gap at the end of the list
+        int lastIndex = shapes.Count - 1;
+        shapes[index] = shapes[lastIndex];
+        shapes.RemoveAt(lastIndex);
     }
     #endregion
     private void OnDrawGizmos()
