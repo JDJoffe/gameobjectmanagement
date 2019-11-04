@@ -47,10 +47,12 @@ public class GameDataWriter
 public class GameDataReader
 {
     #region reading
+    public int Version { get; }
     private BinaryReader reader;
-    public GameDataReader(BinaryReader reader)
+    public GameDataReader(BinaryReader reader, int version)
     {
         this.reader = reader;
+        this.Version = version;
     }
     // cannot have the same name as there are no parameters
     public float ReadFloat()

@@ -7,9 +7,8 @@ public class GameManager : PersistableObject
 {
     // just the position 
     public ShapeFactory shapeFactory;
-    public Transform prefabParent;
     public List<Shape> shapes;
-   //public List<Transform> cubepos;
+    //public List<Transform> cubepos;
     public PersistentStorage storage;
     const int saveVersion = 1;
     private string savePath;
@@ -18,10 +17,12 @@ public class GameManager : PersistableObject
     public KeyCode newGameKey = KeyCode.N;
     public KeyCode saveKey = KeyCode.S;
     public KeyCode loadKey = KeyCode.L;
+
     private void Awake()
     {
+
         shapes = new List<Shape>();
-       // cubepos = new List<Transform>();
+        // cubepos = new List<Transform>();
     }
     private void Update()
     {
@@ -38,8 +39,9 @@ public class GameManager : PersistableObject
         }
         else if (Input.GetKeyDown(saveKey))
         {
+           
             // call function from storage
-            storage.Save(this);
+            storage.Save(this,saveVersion);
         }
         else if (Input.GetKeyDown(loadKey))
         {
@@ -52,7 +54,7 @@ public class GameManager : PersistableObject
     #region creating and clearing objects in list
     private void CreateObject()
     {
-      // o is an instance (instantiated object)
+        // o is an instance (instantiated object)
         Shape o = shapeFactory.GetRandom();
         // random.insideunitsphere makes the shapes spawn randomly within the sphere, 
         // they may jut out but their centrepoint is never outside the sphere
@@ -66,9 +68,11 @@ public class GameManager : PersistableObject
         //              -5
         #endregion
         Transform t = o.transform;
-       t.localPosition = Random.insideUnitSphere * 5f;
+        t.localPosition = Random.insideUnitSphere * 5f;
         t.transform.localRotation = Random.rotation;
         t.transform.localScale = Random.Range(0.1f, 1f) * Vector3.one;
+        o.SetColor(Random.ColorHSV(0f, 1f, 0.5f, 1f, .25f, 1f, 1f, 1f), Random.ColorHSV(0f, 1f, 0.5f, 1f, .25f, 1f, 1f, 1f));
+       
         shapes.Add(o);
         //cubepos.Add(o.transform);
         //for (int i = 0; i < 20; i++)
@@ -112,7 +116,6 @@ public class GameManager : PersistableObject
     public override void Save(GameDataWriter writer)
     {
         // save each cube
-        writer.Write(-saveVersion);
         writer.Write(shapes.Count);
 
         for (int i = 0; i < shapes.Count; i++)
@@ -125,7 +128,7 @@ public class GameManager : PersistableObject
     public override void Load(GameDataReader reader)
     {
         // load each cube
-        int version = -reader.ReadInt();
+        int version = reader.Version;
         if (version > saveVersion)
         {
             Debug.LogError("Unsupported future save version " + version);
@@ -135,14 +138,14 @@ public class GameManager : PersistableObject
         for (int i = 0; i < count; i++)
         {
             // get id
-            int shapeId = version > 0 ? reader.ReadInt():0;
+            int shapeId = version > 0 ? reader.ReadInt() : 0;
             // get material
             int materialId = version > 0 ? reader.ReadInt() : 0;
             // instantiate shapes again
-            Shape o = shapeFactory.Get(shapeId,materialId);
+            Shape o = shapeFactory.Get(shapeId, materialId);
             o.Load(reader);
             shapes.Add(o);
-           // shapes.Add(o.transform);
+            // shapes.Add(o.transform);
         }
     }
     #endregion
